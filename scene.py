@@ -133,6 +133,9 @@ class Scene:
              ti.round(idx[1]),
              ti.round(idx[2])]).cast(ti.i32)
 
+    def clear_voxels(self):
+        self.renderer.clear_voxels()
+
     @ti.func
     def set_voxel(self, idx, mat, color):
         self.renderer.set_voxel(self.round_idx(idx), mat, color)
@@ -152,12 +155,13 @@ class Scene:
     def set_background_color(self, color):
         self.renderer.background_color[None] = color
 
-    def finish(self):
+    def finish(self, callback=None):
         self.renderer.recompute_bbox()
         canvas = self.window.get_canvas()
         spp = 1
+        has_callback_updated = False
         while self.window.running:
-            should_reset_framebuffer = False
+            should_reset_framebuffer = has_callback_updated
 
             if self.camera.update_camera():
                 self.renderer.set_camera_pos(*self.camera.position)
@@ -185,4 +189,10 @@ class Scene:
                 spp = max(spp, 1)
             else:
                 spp += 1
+
+            has_callback_updated = False
+            if callback and callback(self.window):
+                self.renderer.recompute_bbox()
+                has_callback_updated = True
+
             self.window.show()

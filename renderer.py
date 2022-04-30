@@ -376,6 +376,10 @@ class Renderer:
         self.voxel_material[idx] = ti.cast(mat, ti.i8)
         self.voxel_color[idx] = self.to_vec3u(color)
 
+    def clear_voxels(self):
+        self.voxel_material.fill(0)
+        self.voxel_color.fill(0)
+
     @ti.func
     def get_voxel(self, ijk):
         mat = self.voxel_material[ijk]
